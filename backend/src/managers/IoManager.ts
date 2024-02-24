@@ -6,7 +6,12 @@ export class IoManager {
   //* for everyone access io
   public static getIo() {
     if (!this.io) {
-      const io = new Server(server);
+      const io = new Server(server, {
+        cors: {
+          origin: "*",
+          methods: ["GET", "POST"]
+        }
+      });
       this.io = io;
     }
     return this.io;

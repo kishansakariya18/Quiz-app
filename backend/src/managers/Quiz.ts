@@ -21,7 +21,7 @@ interface Problem {
   id: string;
   title: string;
   description: string;
-  image: string;
+  image?: string;
   startTime: number;
   answer: AllowedSubmissions;
   options: {
@@ -41,16 +41,30 @@ export class Quiz {
   private currentState: "leaderboard" | "question" | "not_started" | "ended";
 
   constructor(roomId: string) {
-    (this.roomId = roomId), (this.hasStarted = false);
+    this.roomId = roomId,
+    this.hasStarted = false
     this.problems = [];
     this.activeProblem = 0;
     this.users = [];
     this.currentState = "not_started"
+    console.log("room Created")
+    setInterval(() => {
+      this.debug()
+    }, 10000)
+  }
+
+  debug(){
+    console.log("----- debug -------");
+    console.log(this.roomId);
+    console.log('problem' + JSON.stringify(this.problems));
+    console.log(this.users);
+    console.log(this.currentState)
+    console.log(this.activeProblem)
   }
 
   addProblem(problem: Problem) {
     this.problems.push(problem);
-    console.log(this.problems)
+    console.log('problem Arr: ',this.problems)
   }
 
   start() {
@@ -59,6 +73,10 @@ export class Quiz {
   }
 
   setActiveProblem(problem: Problem) {
+
+    console.log('set active problem');
+    
+    this.currentState = "question"
     problem.startTime = new Date().getTime();
     problem.submissions = [];
     IoManager.getIo().emit("CHANGE_PROBLEM", {
@@ -67,10 +85,11 @@ export class Quiz {
     //Todo : clear this if function moves ahead
     setTimeout(() => {
       this.sendLeaderboard();
-    }, PROBLEM_TIME_S);
+    }, PROBLEM_TIME_S * 1000);
   }
 
   sendLeaderboard() {
+    this.currentState = "leaderboard"
     const leaderboard = this.getLeaderboard()
     IoManager.getIo().to(this.roomId).emit("leaderboard", {
       leaderboard,
@@ -80,13 +99,15 @@ export class Quiz {
   next() {
     this.activeProblem++;
     const problem = this.problems[this.activeProblem];
+
+    console.log('problem:: ', problem);
+    
     if (problem) {
+      console.log('problem found')
       this.setActiveProblem(problem);
     } else {
-      IoManager.getIo().emit("QUIZ_END", {
-        problem,
-      });
-    }
+        this.activeProblem --;
+      };
   }
 
   genRandonString(length: number) {

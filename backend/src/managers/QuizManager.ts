@@ -19,7 +19,7 @@ export class QuizManager {
   addProblem(roomId: string, problem: {
     title: string;
     description: string;
-    image: string;
+    image?: string;
     options: {
       id: number;
       title: string;
@@ -41,8 +41,12 @@ export class QuizManager {
 
 
   public next(roomId: string) {
+    console.log('next called');
     const quiz = this.getQuiz(roomId);
+    console.log('quiz:: ', quiz);
+    
     if (!quiz) {
+      console.log('quiz not found');
       return;
     }
     quiz.next();
@@ -70,6 +74,9 @@ export class QuizManager {
 
 
   addQuiz(roomId: string){
+    if(this.getQuiz(roomId)){
+      return;
+    }
     const quiz = new Quiz(roomId);
     this.quizes.push(quiz)
   }
