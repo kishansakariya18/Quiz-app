@@ -79,7 +79,7 @@ export class Quiz {
     this.currentState = "question"
     problem.startTime = new Date().getTime();
     problem.submissions = [];
-    IoManager.getIo().emit("CHANGE_PROBLEM", {
+    IoManager.getIo().to(this.roomId).emit("problem", {
       problem,
     });
     //Todo : clear this if function moves ahead
@@ -183,7 +183,7 @@ export class Quiz {
     }
     if(this.currentState === "leaderboard"){
         return {
-            type: "ended",
+            type: "leaderboard",
             leaderboad: this.getLeaderboard()
         }
     }

@@ -1,30 +1,54 @@
-import { useEffect } from 'react';
-import  { io } from 'socket.io-client';
-
-
-const URL = 'http://localhost:4000';
-
-
-
+import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
+import CreateProblem from './CreateProblem';
+import QuizControls from './QuizControls';
 
 
 export const Admin = () => {
-    useEffect(() => {
-         const socket = io(URL);
 
-         socket.on("connect" , () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [socket, setSocket] = useState<null | any>(null);
+    const [quizId, setQuizId] = useState("");
+    const [roomId, setRoomId] = useState("");
+
+    useEffect(() => {
+        const socket = io('http://localhost:3000');
+        console.log('socket: ', socket);
+
+        setSocket(socket)
+
+        socket.on("connect", () => {
             console.log(socket.id);
-            socket.emit("joinAdmin",  {
+            alert("Connected")
+            socket.emit("joinAdmin", {
                 password: "ADMIN_PASSWORD"
             })
+        })
 
-            socket.on("adminInit", {})
-         })
+    }, [])
 
-    })
-  return (
-    <div>
+    if (!quizId) {
+        return (
+            <div>
+                <input type="text" onChange={(e) => {
+                    setRoomId(e.target.value)
+                }} />
 
-    </div>
-  )
+                <button onClick={() => {
+                    socket.emit("createQuiz", {
+                        roomId
+                    });
+                    setQuizId(roomId)
+                }}>create room</button>
+            </div>
+        )
+    }
+
+    return (
+        <div>
+            <CreateProblem roomId={quizId} socket={socket} />
+            <QuizControls socket={socket} roomId={roomId} />
+        </div>
+    )
+
 }

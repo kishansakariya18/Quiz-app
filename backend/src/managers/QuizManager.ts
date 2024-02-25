@@ -70,6 +70,8 @@ export class QuizManager {
     if (!quiz) {
       return null;
     }
+
+    return quiz.getCurrentState()
   }
 
 
